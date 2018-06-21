@@ -1,0 +1,218 @@
+databaseChangeLog:
+
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-01
+        author: p.trukan
+        comment: "create table: city"
+        changes:
+        - createTable:
+            tableName: city
+            columns:
+            - column:
+                name: id
+                type: bigint
+                constraints:
+                    primaryKey: true
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                    nullable: false
+        - createSequence:
+            incrementBy: 50
+            sequenceName: city_seq_id
+            startValue: 100
+
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-02
+        author: p.trukan
+        comment: "create table: mark"
+        changes:
+        - createTable:
+            tableName: mark
+            columns:
+            - column:
+                name: id
+                type: bigint
+                constraints:
+                    primaryKey: true
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                    nullable: false
+        - createSequence:
+            incrementBy: 50
+            sequenceName: mark_seq_id
+            startValue: 100
+        
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-03
+        author: p.trukan
+        comment: "create table: model"
+        changes:
+        - createTable:
+            tableName: model
+            columns:
+            - column:
+                name: id
+                type: bigint
+                constraints:
+                    primaryKey: true
+            - column:
+                name: mark_id
+                type: bigint
+                constraints:
+                    foregnKey:
+                        constraintName: fk_model_mark
+                        referencedColumnNames: id
+                        referencedTableName: mark
+            - column:
+                name: name
+                type: varchar(255)
+                constraints:
+                    nullable: false
+        - createSequence:
+            incrementBy: 50
+            sequenceName: model_seq_id
+            startValue: 100
+        
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-04
+        author: p.trukan
+        comment: "create table: person"
+        changes:
+        - createTable:
+            tableName: person
+            columns:
+            - column:
+                name: id
+                type: bigint
+                constraints:
+                    primaryKey: true
+            - column:
+                name: city_id
+                type: bigint
+                constraints:
+                    foregnKey:
+                        constraintName: fk_person_city
+                        referencedColumnNames: id
+                        referencedTableName: city
+            - column:
+                name: firstname
+                type: varchar(255)
+                constraints:
+                    nullable: false
+            - column:
+                name: lastname
+                type: varchar(255)
+                constraints:
+                    nullable: false
+            - column:
+                name: parentname
+                type: varchar(255)
+                constraints:
+                    nullable: true
+        - createSequence:
+            incrementBy: 50
+            sequenceName: person_seq_id
+            startValue: 100
+        
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-05
+        author: p.trukan
+        comment: "create table: transport"
+        changes:
+        - createTable:
+            tableName: transport
+            columns:
+            - column:
+                name: id
+                type: bigint
+                constraints:
+                    primaryKey: true
+            - column:
+                name: person_id
+                type: bigint
+                constraints:
+                    foregnKey:
+                        constraintName: fk_transport_person
+                        referencedColumnNames: id
+                        referencedTableName: person
+            - column:
+                name: model_id
+                type: bigint
+                constraints:
+                    foregnKey:
+                        constraintName: fk_transport_model
+                        referencedColumnNames: id
+                        referencedTableName: model
+            - column:
+                name: govnumber
+                type: varchar(10)
+                constraints:
+                    unique: true
+                    nullable: false
+        - createSequence:
+            incrementBy: 50
+            sequenceName: transport_seq_id
+            startValue: 100
+
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-06
+        author: p.trukan
+        comment: "create index: ui_transport_govnumber"
+        changes:
+        -createIndex:
+            indexName: ui_transport_govnumber
+            tableName: transpSort
+            unique: true
+            columns:
+            - column:
+                name: UPPER(govnumber)
+
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-08
+        author: p.trukan
+        comment: insert cities
+        changes:
+            - loadData:
+                file: db/changelog/city.csv
+                separator: ;
+                tableName: city
+    - changeSet:
+        id: 2018-06-04-TCRMB-3245-09
+        author: p.trukan
+        comment: insert marks
+        changes:
+            - loadData:
+                file: db/changelog/mark.csv
+                separator: ;
+                tableName: mark
+    - changeSet:
+            id: 2018-06-04-TCRMB-3245-10
+            author: p.trukan
+            comment: insert model (based on marks)
+            changes:
+                - loadData:
+                    file: db/changelog/model.csv
+                    separator: ;
+                    tableName: model
+    - changeSet:
+            id: 2018-06-04-TCRMB-3245-11
+            author: p.trukan
+            comment: insert person (based on cities)
+            changes:
+                - loadData:
+                    file: db/changelog/person.csv
+                    separator: ;
+                    tableName: person
+    - changeSet:
+                id: 2018-06-04-TCRMB-3245-12
+                author: p.trukan
+                comment: insert transport (based on cities, persons)
+                changes:
+                    - loadData:
+                        file: db/changelog/transport.csv
+                        separator: ;
+                        tableName: transport
